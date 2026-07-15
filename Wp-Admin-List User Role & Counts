@@ -1,0 +1,17 @@
+add_action('admin_notices', function () {
+    if (!current_user_can('administrator')) return;
+
+    global $wp_roles;
+    $all_roles = $wp_roles->roles;
+
+    echo '<div class="notice notice-info"><h3>📋 User Roles and User Counts</h3><ul>';
+
+    foreach ($all_roles as $role_key => $role_info) {
+        $user_query = new WP_User_Query(['role' => $role_key, 'number' => 1]);
+        $user_count = $user_query->get_total();
+
+        echo '<li><strong>' . esc_html($role_key) . '</strong> — ' . esc_html($role_info['name']) . ' — <strong>' . esc_html($user_count) . '</strong> users</li>';
+    }
+
+    echo '</ul></div>';
+});
