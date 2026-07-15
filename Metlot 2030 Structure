@@ -1,0 +1,2203 @@
+
+metlot-platform/
+│
+├── infrastructure/                    # 🏗️ Infrastructure Layer (Not code)
+│   ├── kubernetes/
+│   │   ├── clusters/
+│   │   │   ├── production/
+│   │   │   │   ├── service-mesh/
+│   │   │   │   │   ├── istio-config.yaml
+│   │   │   │   │   └── envoy-filter.yaml
+│   │   │   │   ├── api-gateway/
+│   │   │   │   │   ├── gateway.yaml
+│   │   │   │   │   └── virtual-service.yaml
+│   │   │   │   └── service-deployments/
+│   │   │   │       ├── product-service.yaml
+│   │   │   │       ├── order-service.yaml
+│   │   │   │       ├── payment-service.yaml
+│   │   │   │       ├── inventory-service.yaml
+│   │   │   │       ├── user-service.yaml
+│   │   │   │       ├── search-service.yaml
+│   │   │   │       ├── notification-service.yaml
+│   │   │   │       └── analytics-service.yaml
+│   │   │   ├── staging/
+│   │   │   │   └── service-deployments/
+│   │   │   │       ├── product-service.yaml
+│   │   │   │       └── order-service.yaml
+│   │   │   └── development/
+│   │   │       └── service-deployments/
+│   │   │           ├── product-service.yaml
+│   │   │           └── order-service.yaml
+│   │   ├── manifests/
+│   │   │   ├── secrets/
+│   │   │   │   ├── db-secrets.yaml
+│   │   │   │   ├── redis-secrets.yaml
+│   │   │   │   ├── payment-secrets.yaml
+│   │   │   │   └── jwt-secrets.yaml
+│   │   │   ├── configmaps/
+│   │   │   │   ├── app-config.yaml
+│   │   │   │   ├── database-config.yaml
+│   │   │   │   └── cache-config.yaml
+│   │   │   └── persistent-volumes/
+│   │   │       ├── postgres-pv.yaml
+│   │   │       ├── redis-pv.yaml
+│   │   │       └── elasticsearch-pv.yaml
+│   │   └── helm-charts/
+│   │       ├── metlot-platform/
+│   │       │   ├── Chart.yaml
+│   │       │   ├── values.yaml
+│   │       │   ├── templates/
+│   │       │   │   ├── _helpers.tpl
+│   │       │   │   ├── deployment.yaml
+│   │       │   │   ├── service.yaml
+│   │       │   │   └── ingress.yaml
+│   │       │   └── README.md
+│   │       └── services/
+│   │           ├── product-service/
+│   │           │   ├── Chart.yaml
+│   │           │   └── values.yaml
+│   │           └── order-service/
+│   │               ├── Chart.yaml
+│   │               └── values.yaml
+│   ├── terraform/
+│   │   ├── aws/
+│   │   │   ├── networking/
+│   │   │   │   ├── vpc.tf
+│   │   │   │   ├── subnets.tf
+│   │   │   │   └── security-groups.tf
+│   │   │   ├── compute/
+│   │   │   │   ├── ec2.tf
+│   │   │   │   ├── eks.tf
+│   │   │   │   └── autoscaling.tf
+│   │   │   ├── database/
+│   │   │   │   ├── rds.tf
+│   │   │   │   ├── redis.tf
+│   │   │   │   └── elasticsearch.tf
+│   │   │   ├── storage/
+│   │   │   │   ├── s3.tf
+│   │   │   │   └── ebs.tf
+│   │   │   └── security/
+│   │   │       ├── iam.tf
+│   │   │       └── kms.tf
+│   │   └── gcp/
+│   │       ├── networking/
+│   │       ├── compute/
+│   │       ├── database/
+│   │       ├── storage/
+│   │       └── security/
+│   ├── docker/
+│   │   ├── Dockerfile.base
+│   │   ├── Dockerfile.services
+│   │   ├── Dockerfile.product-service
+│   │   ├── Dockerfile.order-service
+│   │   ├── Dockerfile.payment-service
+│   │   ├── docker-compose.yml
+│   │   └── .dockerignore
+│   └── service-mesh/
+│       ├── istio-config/
+│       │   ├── virtual-services/
+│       │   │   ├── product-virtual-service.yaml
+│       │   │   ├── order-virtual-service.yaml
+│       │   │   └── payment-virtual-service.yaml
+│       │   ├── destination-rules/
+│       │   │   ├── product-destination-rule.yaml
+│       │   │   └── order-destination-rule.yaml
+│       │   └── gateways/
+│       │       ├── ingress-gateway.yaml
+│       │       └── egress-gateway.yaml
+│       └── envoy-proxy/
+│           ├── envoy.yaml
+│           └── envoy-filter.yaml
+│
+├── platform-services/                 # 🎯 Core Platform Services
+│   │
+│   ├── product-service/               # 📦 Product Context
+│   │   ├── src/
+│   │   │   ├── Domain/
+│   │   │   │   ├── Entities/
+│   │   │   │   │   ├── Product.go
+│   │   │   │   │   ├── Category.go
+│   │   │   │   │   ├── Brand.go
+│   │   │   │   │   └── Variation.go
+│   │   │   │   ├── ValueObjects/
+│   │   │   │   │   ├── SKU.go
+│   │   │   │   │   ├── Price.go
+│   │   │   │   │   └── ProductAttributes.go
+│   │   │   │   ├── Aggregates/
+│   │   │   │   │   └── ProductCatalog.go
+│   │   │   │   ├── Repositories/
+│   │   │   │   │   ├── ProductRepositoryInterface.go
+│   │   │   │   │   └── CategoryRepositoryInterface.go
+│   │   │   │   └── Events/
+│   │   │   │       ├── ProductCreated.go
+│   │   │   │       ├── ProductUpdated.go
+│   │   │   │       ├── ProductDeleted.go
+│   │   │   │       └── ProductViewed.go
+│   │   │   ├── Application/
+│   │   │   │   ├── Commands/
+│   │   │   │   │   ├── CreateProductCommand.go
+│   │   │   │   │   ├── UpdateProductCommand.go
+│   │   │   │   │   └── DeleteProductCommand.go
+│   │   │   │   ├── Queries/
+│   │   │   │   │   ├── GetProductQuery.go
+│   │   │   │   │   ├── SearchProductsQuery.go
+│   │   │   │   │   └── GetCategoryProductsQuery.go
+│   │   │   │   ├── Handlers/
+│   │   │   │   │   ├── CreateProductHandler.go
+│   │   │   │   │   ├── UpdateProductHandler.go
+│   │   │   │   │   └── SearchProductsHandler.go
+│   │   │   │   ├── DTOs/
+│   │   │   │   │   ├── ProductDTO.go
+│   │   │   │   │   └── CategoryDTO.go
+│   │   │   │   └── Services/
+│   │   │   │       ├── ProductService.go
+│   │   │   │       ├── CategoryService.go
+│   │   │   │       └── ImportExportService.go
+│   │   │   ├── Infrastructure/
+│   │   │   │   ├── Repositories/
+│   │   │   │   │   ├── ProductRepository.go
+│   │   │   │   │   └── CategoryRepository.go
+│   │   │   │   ├── Adapters/
+│   │   │   │   │   ├── CacheAdapter.go
+│   │   │   │   │   └── SearchAdapter.go
+│   │   │   │   └── Models/
+│   │   │   │       ├── ProductModel.go
+│   │   │   │       └── CategoryModel.go
+│   │   │   ├── Interface/
+│   │   │   │   ├── Http/
+│   │   │   │   │   ├── Controllers/
+│   │   │   │   │   │   ├── ProductController.go
+│   │   │   │   │   │   └── CategoryController.go
+│   │   │   │   │   ├── Middleware/
+│   │   │   │   │   │   ├── CacheMiddleware.go
+│   │   │   │   │   │   └── ValidationMiddleware.go
+│   │   │   │   │   └── Requests/
+│   │   │   │   │       ├── StoreProductRequest.go
+│   │   │   │   │       └── UpdateProductRequest.go
+│   │   │   │   ├── Console/
+│   │   │   │   │   ├── ImportProducts.go
+│   │   │   │   │   └── GenerateSitemap.go
+│   │   │   │   └── Queue/
+│   │   │   │       ├── Jobs/
+│   │   │   │       │   ├── ProcessBulkImport.go
+│   │   │   │       │   └── SyncProductIndex.go
+│   │   │   │       └── Listeners/
+│   │   │   │           ├── ProductCreatedListener.go
+│   │   │   │           └── ProductUpdatedListener.go
+│   │   │   └── Tests/
+│   │   │       ├── Unit/
+│   │   │       │   ├── ProductTest.go
+│   │   │       │   └── CategoryTest.go
+│   │   │       ├── Integration/
+│   │   │       │   ├── ProductRepositoryTest.go
+│   │   │       │   └── API_test.go
+│   │   │       └── Feature/
+│   │   │           └── ProductFlowTest.go
+│   │   ├── config/
+│   │   │   ├── config.yaml
+│   │   │   ├── config.dev.yaml
+│   │   │   ├── config.prod.yaml
+│   │   │   ├── product.yaml
+│   │   │   └── search.yaml
+│   │   ├── migrations/
+│   │   │   ├── 001_create_products_table.sql
+│   │   │   ├── 002_create_categories_table.sql
+│   │   │   ├── 003_create_brands_table.sql
+│   │   │   └── 004_create_variations_table.sql
+│   │   ├── seeds/
+│   │   │   ├── seed_products.sql
+│   │   │   └── seed_categories.sql
+│   │   ├── docs/
+│   │   │   ├── README.md
+│   │   │   └── API.md
+│   │   ├── go.mod
+│   │   ├── go.sum
+│   │   ├── Makefile
+│   │   └── Dockerfile
+│   │
+│   ├── order-service/                 # 🛒 Order Context
+│   │   ├── src/
+│   │   │   ├── Domain/
+│   │   │   │   ├── Entities/
+│   │   │   │   │   ├── Order.go
+│   │   │   │   │   ├── OrderItem.go
+│   │   │   │   │   └── OrderHistory.go
+│   │   │   │   ├── ValueObjects/
+│   │   │   │   │   ├── OrderNumber.go
+│   │   │   │   │   ├── OrderStatus.go
+│   │   │   │   │   └── OrderTotal.go
+│   │   │   │   ├── Aggregates/
+│   │   │   │   │   └── OrderAggregate.go
+│   │   │   │   ├── Repositories/
+│   │   │   │   │   ├── OrderRepositoryInterface.go
+│   │   │   │   │   └── OrderHistoryRepositoryInterface.go
+│   │   │   │   ├── Events/
+│   │   │   │   │   ├── OrderPlaced.go
+│   │   │   │   │   ├── OrderUpdated.go
+│   │   │   │   │   ├── OrderCancelled.go
+│   │   │   │   │   └── OrderStatusChanged.go
+│   │   │   │   ├── StateMachine/
+│   │   │   │   │   ├── OrderStateMachine.go
+│   │   │   │   │   ├── States/
+│   │   │   │   │   │   ├── PendingState.go
+│   │   │   │   │   │   ├── ProcessingState.go
+│   │   │   │   │   │   ├── ShippedState.go
+│   │   │   │   │   │   ├── DeliveredState.go
+│   │   │   │   │   │   └── CancelledState.go
+│   │   │   │   │   └── Transitions/
+│   │   │   │   │       ├── Transition.go
+│   │   │   │   │       ├── ProcessTransition.go
+│   │   │   │   │       └── ShipTransition.go
+│   │   │   │   └── Saga/
+│   │   │   │       ├── OrderSaga.go
+│   │   │   │       ├── Steps/
+│   │   │   │       │   ├── ReserveInventoryStep.go
+│   │   │   │       │   ├── ProcessPaymentStep.go
+│   │   │   │       │   ├── ConfirmOrderStep.go
+│   │   │   │       │   └── HandleFailureStep.go
+│   │   │   │       └── Orchestrator/
+│   │   │   │           └── OrderSagaOrchestrator.go
+│   │   │   ├── Application/
+│   │   │   │   ├── Commands/
+│   │   │   │   │   ├── PlaceOrderCommand.go
+│   │   │   │   │   ├── UpdateOrderCommand.go
+│   │   │   │   │   └── CancelOrderCommand.go
+│   │   │   │   ├── Queries/
+│   │   │   │   │   ├── GetOrderQuery.go
+│   │   │   │   │   └── GetOrderHistoryQuery.go
+│   │   │   │   ├── Handlers/
+│   │   │   │   │   ├── PlaceOrderHandler.go
+│   │   │   │   │   └── CancelOrderHandler.go
+│   │   │   │   ├── DTOs/
+│   │   │   │   │   ├── OrderDTO.go
+│   │   │   │   │   └── OrderItemDTO.go
+│   │   │   │   └── Services/
+│   │   │   │       ├── OrderService.go
+│   │   │   │       └── OrderTrackingService.go
+│   │   │   ├── Infrastructure/
+│   │   │   │   ├── Repositories/
+│   │   │   │   │   ├── OrderRepository.go
+│   │   │   │   │   └── OrderHistoryRepository.go
+│   │   │   │   ├── Adapters/
+│   │   │   │   │   ├── PaymentAdapter.go
+│   │   │   │   │   ├── InventoryAdapter.go
+│   │   │   │   │   └── NotificationAdapter.go
+│   │   │   │   └── Models/
+│   │   │   │       ├── OrderModel.go
+│   │   │   │       └── OrderItemModel.go
+│   │   │   ├── Interface/
+│   │   │   │   ├── Http/
+│   │   │   │   │   ├── Controllers/
+│   │   │   │   │   │   ├── OrderController.go
+│   │   │   │   │   │   └── OrderTrackingController.go
+│   │   │   │   │   ├── Middleware/
+│   │   │   │   │   │   ├── AuthMiddleware.go
+│   │   │   │   │   │   └── RateLimitMiddleware.go
+│   │   │   │   │   └── Requests/
+│   │   │   │   │       ├── PlaceOrderRequest.go
+│   │   │   │   │       └── UpdateOrderRequest.go
+│   │   │   │   ├── Console/
+│   │   │   │   │   ├── AutoCancelPendingOrders.go
+│   │   │   │   │   └── UpdateOrderStatuses.go
+│   │   │   │   └── Queue/
+│   │   │   │       ├── Jobs/
+│   │   │   │       │   ├── ProcessOrder.go
+│   │   │   │       │   └── RetryFailedOrder.go
+│   │   │   │       └── Listeners/
+│   │   │   │           ├── OrderPlacedListener.go
+│   │   │   │           └── OrderStatusChangedListener.go
+│   │   │   └── Tests/
+│   │   │       ├── Unit/
+│   │   │       ├── Integration/
+│   │   │       └── Feature/
+│   │   ├── config/
+│   │   │   ├── config.yaml
+│   │   │   └── order.yaml
+│   │   ├── migrations/
+│   │   │   ├── 001_create_orders_table.sql
+│   │   │   └── 002_create_order_items_table.sql
+│   │   ├── go.mod
+│   │   ├── go.sum
+│   │   ├── Makefile
+│   │   └── Dockerfile
+│   │
+│   ├── inventory-service/            # 📊 Inventory Context
+│   │   ├── src/
+│   │   │   ├── Domain/
+│   │   │   │   ├── Entities/
+│   │   │   │   │   ├── Inventory.go
+│   │   │   │   │   ├── Warehouse.go
+│   │   │   │   │   └── StockMovement.go
+│   │   │   │   ├── ValueObjects/
+│   │   │   │   │   ├── Stock.go
+│   │   │   │   │   └── WarehouseLocation.go
+│   │   │   │   ├── Repositories/
+│   │   │   │   │   ├── InventoryRepositoryInterface.go
+│   │   │   │   │   └── WarehouseRepositoryInterface.go
+│   │   │   │   └── Events/
+│   │   │   │       ├── StockReserved.go
+│   │   │   │       ├── StockReleased.go
+│   │   │   │       ├── StockUpdated.go
+│   │   │   │       └── LowStockAlert.go
+│   │   │   ├── Application/
+│   │   │   │   ├── Commands/
+│   │   │   │   │   ├── ReserveStockCommand.go
+│   │   │   │   │   ├── ReleaseStockCommand.go
+│   │   │   │   │   └── AdjustStockCommand.go
+│   │   │   │   ├── Queries/
+│   │   │   │   │   ├── GetInventoryQuery.go
+│   │   │   │   │   └── GetAvailableStockQuery.go
+│   │   │   │   ├── Handlers/
+│   │   │   │   │   ├── ReserveStockHandler.go
+│   │   │   │   │   └── AdjustStockHandler.go
+│   │   │   │   ├── DTOs/
+│   │   │   │   │   ├── InventoryDTO.go
+│   │   │   │   │   └── WarehouseDTO.go
+│   │   │   │   └── Services/
+│   │   │   │       ├── InventoryService.go
+│   │   │   │       ├── ReservationService.go
+│   │   │   │       └── ReorderService.go
+│   │   │   ├── Infrastructure/
+│   │   │   │   ├── Repositories/
+│   │   │   │   │   ├── InventoryRepository.go
+│   │   │   │   │   └── WarehouseRepository.go
+│   │   │   │   ├── Adapters/
+│   │   │   │   │   ├── CacheAdapter.go
+│   │   │   │   │   └── NotificationAdapter.go
+│   │   │   │   └── Models/
+│   │   │   │       ├── InventoryModel.go
+│   │   │   │       └── WarehouseModel.go
+│   │   │   ├── Interface/
+│   │   │   │   ├── Http/
+│   │   │   │   │   ├── Controllers/
+│   │   │   │   │   │   └── InventoryController.go
+│   │   │   │   │   └── Middleware/
+│   │   │   │   │       └── StockValidationMiddleware.go
+│   │   │   │   ├── Console/
+│   │   │   │   │   ├── ReconcileInventory.go
+│   │   │   │   │   └── GenerateReorderReport.go
+│   │   │   │   └── Queue/
+│   │   │   │       ├── Jobs/
+│   │   │   │       │   ├── ProcessStockAdjustment.go
+│   │   │   │       │   └── SyncInventory.go
+│   │   │   │       └── Listeners/
+│   │   │   │           └── LowStockAlertListener.go
+│   │   │   └── Tests/
+│   │   │       ├── Unit/
+│   │   │       ├── Integration/
+│   │   │       └── Feature/
+│   │   ├── config/
+│   │   │   ├── config.yaml
+│   │   │   └── inventory.yaml
+│   │   ├── migrations/
+│   │   │   ├── 001_create_inventory_table.sql
+│   │   │   └── 002_create_warehouses_table.sql
+│   │   ├── go.mod
+│   │   ├── go.sum
+│   │   ├── Makefile
+│   │   └── Dockerfile
+│   │
+│   ├── payment-service/              # 💳 Payment Context
+│   │   ├── src/
+│   │   │   ├── Domain/
+│   │   │   │   ├── Entities/
+│   │   │   │   │   ├── Payment.go
+│   │   │   │   │   ├── Transaction.go
+│   │   │   │   │   └── Refund.go
+│   │   │   │   ├── ValueObjects/
+│   │   │   │   │   ├── Money.go
+│   │   │   │   │   ├── PaymentStatus.go
+│   │   │   │   │   └── PaymentMethod.go
+│   │   │   │   ├── Repositories/
+│   │   │   │   │   ├── PaymentRepositoryInterface.go
+│   │   │   │   │   └── TransactionRepositoryInterface.go
+│   │   │   │   └── Events/
+│   │   │   │       ├── PaymentProcessed.go
+│   │   │   │       ├── PaymentFailed.go
+│   │   │   │       ├── PaymentRefunded.go
+│   │   │   │       └── PaymentDisputed.go
+│   │   │   ├── Application/
+│   │   │   │   ├── Commands/
+│   │   │   │   │   ├── ProcessPaymentCommand.go
+│   │   │   │   │   ├── RefundPaymentCommand.go
+│   │   │   │   │   └── CapturePaymentCommand.go
+│   │   │   │   ├── Queries/
+│   │   │   │   │   ├── GetPaymentStatusQuery.go
+│   │   │   │   │   └── GetTransactionHistoryQuery.go
+│   │   │   │   ├── Handlers/
+│   │   │   │   │   ├── ProcessPaymentHandler.go
+│   │   │   │   │   └── RefundPaymentHandler.go
+│   │   │   │   ├── DTOs/
+│   │   │   │   │   ├── PaymentDTO.go
+│   │   │   │   │   └── TransactionDTO.go
+│   │   │   │   └── Services/
+│   │   │   │       ├── PaymentService.go
+│   │   │   │       ├── RefundService.go
+│   │   │   │       └── FraudDetectionService.go
+│   │   │   ├── Infrastructure/
+│   │   │   │   ├── Repositories/
+│   │   │   │   │   ├── PaymentRepository.go
+│   │   │   │   │   └── TransactionRepository.go
+│   │   │   │   ├── Adapters/
+│   │   │   │   │   ├── Gateways/
+│   │   │   │   │   │   ├── StripeAdapter.go
+│   │   │   │   │   │   ├── PayPalAdapter.go
+│   │   │   │   │   │   ├── PaystackAdapter.go
+│   │   │   │   │   │   └── FlutterwaveAdapter.go
+│   │   │   │   │   ├── NotificationAdapter.go
+│   │   │   │   │   └── AuditAdapter.go
+│   │   │   │   └── Models/
+│   │   │   │       ├── PaymentModel.go
+│   │   │   │       └── TransactionModel.go
+│   │   │   ├── Interface/
+│   │   │   │   ├── Http/
+│   │   │   │   │   ├── Controllers/
+│   │   │   │   │   │   ├── PaymentController.go
+│   │   │   │   │   │   ├── WebhookController.go
+│   │   │   │   │   │   └── RefundController.go
+│   │   │   │   │   ├── Middleware/
+│   │   │   │   │   │   ├── IdempotencyMiddleware.go
+│   │   │   │   │   │   └── RetryMiddleware.go
+│   │   │   │   │   └── Requests/
+│   │   │   │   │       ├── ProcessPaymentRequest.go
+│   │   │   │   │       └── RefundRequest.go
+│   │   │   │   ├── Console/
+│   │   │   │   │   ├── RetryFailedPayments.go
+│   │   │   │   │   └── VerifyPendingTransactions.go
+│   │   │   │   └── Queue/
+│   │   │   │       ├── Jobs/
+│   │   │   │       │   ├── ProcessPayment.go
+│   │   │   │       │   ├── VerifyTransaction.go
+│   │   │   │       │   └── RetryPayment.go
+│   │   │   │       └── Listeners/
+│   │   │   │           ├── PaymentProcessedListener.go
+│   │   │   │           └── PaymentFailedListener.go
+│   │   │   └── Tests/
+│   │   │       ├── Unit/
+│   │   │       ├── Integration/
+│   │   │       └── Feature/
+│   │   ├── config/
+│   │   │   ├── config.yaml
+│   │   │   ├── payment.yaml
+│   │   │   └── gateways.yaml
+│   │   ├── migrations/
+│   │   │   ├── 001_create_payments_table.sql
+│   │   │   └── 002_create_transactions_table.sql
+│   │   ├── go.mod
+│   │   ├── go.sum
+│   │   ├── Makefile
+│   │   └── Dockerfile
+│   │
+│   ├── user-service/                 # 👤 User Context
+│   │   ├── src/
+│   │   │   ├── Domain/
+│   │   │   │   ├── Entities/
+│   │   │   │   │   ├── User.go
+│   │   │   │   │   ├── Profile.go
+│   │   │   │   │   ├── Address.go
+│   │   │   │   │   └── Wishlist.go
+│   │   │   │   ├── ValueObjects/
+│   │   │   │   │   ├── UserID.go
+│   │   │   │   │   ├── Email.go
+│   │   │   │   │   ├── Password.go
+│   │   │   │   │   └── PhoneNumber.go
+│   │   │   │   ├── Repositories/
+│   │   │   │   │   ├── UserRepositoryInterface.go
+│   │   │   │   │   └── ProfileRepositoryInterface.go
+│   │   │   │   └── Events/
+│   │   │   │       ├── UserRegistered.go
+│   │   │   │       ├── UserLoggedIn.go
+│   │   │   │       └── UserProfileUpdated.go
+│   │   │   ├── Application/
+│   │   │   │   ├── Commands/
+│   │   │   │   │   ├── RegisterUserCommand.go
+│   │   │   │   │   ├── UpdateUserCommand.go
+│   │   │   │   │   └── DeleteUserCommand.go
+│   │   │   │   ├── Queries/
+│   │   │   │   │   ├── GetUserQuery.go
+│   │   │   │   │   └── SearchUsersQuery.go
+│   │   │   │   ├── Handlers/
+│   │   │   │   │   ├── RegisterUserHandler.go
+│   │   │   │   │   └── GetUserHandler.go
+│   │   │   │   ├── DTOs/
+│   │   │   │   │   ├── UserDTO.go
+│   │   │   │   │   └── ProfileDTO.go
+│   │   │   │   └── Services/
+│   │   │   │       ├── UserService.go
+│   │   │   │       └── ProfileService.go
+│   │   │   ├── Infrastructure/
+│   │   │   │   ├── Repositories/
+│   │   │   │   │   ├── UserRepository.go
+│   │   │   │   │   └── ProfileRepository.go
+│   │   │   │   ├── Adapters/
+│   │   │   │   │   ├── CacheAdapter.go
+│   │   │   │   │   └── NotificationAdapter.go
+│   │   │   │   └── Models/
+│   │   │   │       ├── UserModel.go
+│   │   │   │       └── ProfileModel.go
+│   │   │   ├── Interface/
+│   │   │   │   ├── Http/
+│   │   │   │   │   ├── Controllers/
+│   │   │   │   │   │   ├── UserController.go
+│   │   │   │   │   │   └── ProfileController.go
+│   │   │   │   │   ├── Middleware/
+│   │   │   │   │   │   └── AuthMiddleware.go
+│   │   │   │   │   └── Requests/
+│   │   │   │   │       ├── RegisterUserRequest.go
+│   │   │   │   │       └── UpdateUserRequest.go
+│   │   │   │   ├── Console/
+│   │   │   │   │   └── CreateUser.go
+│   │   │   │   └── Queue/
+│   │   │   │       └── Listeners/
+│   │   │   │           └── UserRegisteredListener.go
+│   │   │   └── Tests/
+│   │   │       ├── Unit/
+│   │   │       ├── Integration/
+│   │   │       └── Feature/
+│   │   ├── config/
+│   │   │   ├── config.yaml
+│   │   │   └── user.yaml
+│   │   ├── migrations/
+│   │   │   ├── 001_create_users_table.sql
+│   │   │   └── 002_create_profiles_table.sql
+│   │   ├── go.mod
+│   │   ├── go.sum
+│   │   ├── Makefile
+│   │   └── Dockerfile
+│   │
+│   ├── search-service/              # 🔍 Search Service (Elasticsearch)
+│   │   ├── src/
+│   │   │   ├── Domain/
+│   │   │   │   ├── Entities/
+│   │   │   │   │   ├── SearchIndex.go
+│   │   │   │   │   ├── SearchQuery.go
+│   │   │   │   │   └── SearchResult.go
+│   │   │   │   ├── ValueObjects/
+│   │   │   │   │   ├── SearchTerm.go
+│   │   │   │   │   ├── RelevanceScore.go
+│   │   │   │   │   └── Filter.go
+│   │   │   │   └── Repositories/
+│   │   │   │       └── SearchRepositoryInterface.go
+│   │   │   ├── Application/
+│   │   │   │   ├── Services/
+│   │   │   │   │   ├── SearchService.go
+│   │   │   │   │   ├── IndexingService.go
+│   │   │   │   │   └── SyncingService.go
+│   │   │   │   ├── Handlers/
+│   │   │   │   │   ├── ProductSearchHandler.go
+│   │   │   │   │   ├── CategorySearchHandler.go
+│   │   │   │   │   └── VendorSearchHandler.go
+│   │   │   │   └── Filters/
+│   │   │   │       ├── ProductFilters.go
+│   │   │   │       ├── AttributeFilters.go
+│   │   │   │       └── PriceFilters.go
+│   │   │   ├── Infrastructure/
+│   │   │   │   ├── Adapters/
+│   │   │   │   │   ├── Elasticsearch/
+│   │   │   │   │   │   ├── IndexManager.go
+│   │   │   │   │   │   ├── QueryBuilder.go
+│   │   │   │   │   │   └── AggregationBuilder.go
+│   │   │   │   │   └── Syncers/
+│   │   │   │   │       ├── ProductSyncer.go
+│   │   │   │   │       └── CategorySyncer.go
+│   │   │   │   └── Models/
+│   │   │   │       ├── SearchIndexModel.go
+│   │   │   │       └── SearchResultModel.go
+│   │   │   ├── Interface/
+│   │   │   │   ├── API/
+│   │   │   │   │   ├── SearchController.go
+│   │   │   │   │   └── AutocompleteController.go
+│   │   │   │   └── Console/
+│   │   │   │       ├── Reindex.go
+│   │   │   │       └── SyncIndex.go
+│   │   │   └── Tests/
+│   │   │       ├── Unit/
+│   │   │       ├── Integration/
+│   │   │       └── Feature/
+│   │   ├── config/
+│   │   │   ├── config.yaml
+│   │   │   ├── elasticsearch.yaml
+│   │   │   └── search.yaml
+│   │   ├── go.mod
+│   │   ├── go.sum
+│   │   ├── Makefile
+│   │   └── Dockerfile
+│   │
+│   ├── notification-service/        # 📨 Notification Service
+│   │   ├── src/
+│   │   │   ├── Domain/
+│   │   │   │   ├── Entities/
+│   │   │   │   │   ├── Notification.go
+│   │   │   │   │   ├── Template.go
+│   │   │   │   │   └── Preference.go
+│   │   │   │   ├── ValueObjects/
+│   │   │   │   │   ├── ChannelType.go
+│   │   │   │   │   └── Priority.go
+│   │   │   │   └── Repositories/
+│   │   │   │       ├── NotificationRepositoryInterface.go
+│   │   │   │       └── TemplateRepositoryInterface.go
+│   │   │   ├── Application/
+│   │   │   │   ├── Services/
+│   │   │   │   │   ├── NotificationService.go
+│   │   │   │   │   ├── TemplateService.go
+│   │   │   │   │   └── PreferenceService.go
+│   │   │   │   ├── Handlers/
+│   │   │   │   │   └── SendNotificationHandler.go
+│   │   │   │   └── DTOs/
+│   │   │   │       ├── NotificationDTO.go
+│   │   │   │       └── TemplateDTO.go
+│   │   │   ├── Infrastructure/
+│   │   │   │   ├── Repositories/
+│   │   │   │   │   ├── NotificationRepository.go
+│   │   │   │   │   └── TemplateRepository.go
+│   │   │   │   ├── Adapters/
+│   │   │   │   │   ├── Channels/
+│   │   │   │   │   │   ├── EmailAdapter.go
+│   │   │   │   │   │   ├── SMSAdapter.go
+│   │   │   │   │   │   ├── PushAdapter.go
+│   │   │   │   │   │   └── WhatsAppAdapter.go
+│   │   │   │   │   └── QueueAdapter.go
+│   │   │   │   └── Models/
+│   │   │   │       ├── NotificationModel.go
+│   │   │   │       └── TemplateModel.go
+│   │   │   ├── Interface/
+│   │   │   │   ├── API/
+│   │   │   │   │   └── NotificationController.go
+│   │   │   │   ├── Console/
+│   │   │   │   │   └── SendBulkNotifications.go
+│   │   │   │   └── Queue/
+│   │   │   │       └── Listeners/
+│   │   │   │           ├── OrderPlacedListener.go
+│   │   │   │           └── OrderStatusListener.go
+│   │   │   └── Tests/
+│   │   │       ├── Unit/
+│   │   │       ├── Integration/
+│   │   │       └── Feature/
+│   │   ├── config/
+│   │   │   ├── config.yaml
+│   │   │   └── notification.yaml
+│   │   ├── migrations/
+│   │   │   ├── 001_create_notifications_table.sql
+│   │   │   └── 002_create_templates_table.sql
+│   │   ├── go.mod
+│   │   ├── go.sum
+│   │   ├── Makefile
+│   │   └── Dockerfile
+│   │
+│   └── analytics-service/           # 📈 Analytics Service
+│       ├── src/
+│       │   ├── Domain/
+│       │   │   ├── Entities/
+│       │   │   │   ├── Metric.go
+│       │   │   │   ├── Report.go
+│       │   │   │   └── Dashboard.go
+│       │   │   ├── ValueObjects/
+│       │   │   │   ├── MetricType.go
+│       │   │   │   ├── TimeRange.go
+│       │   │   │   └── Aggregation.go
+│       │   │   └── Repositories/
+│       │   │       ├── MetricRepositoryInterface.go
+│       │   │       └── ReportRepositoryInterface.go
+│       │   ├── Application/
+│       │   │   ├── Services/
+│       │   │   │   ├── AnalyticsService.go
+│       │   │   │   ├── ReportService.go
+│       │   │   │   └── DashboardService.go
+│       │   │   ├── Handlers/
+│       │   │   │   └── GenerateReportHandler.go
+│       │   │   └── DTOs/
+│       │   │       ├── MetricDTO.go
+│       │   │       └── ReportDTO.go
+│       │   ├── Infrastructure/
+│       │   │   ├── Repositories/
+│       │   │   │   ├── MetricRepository.go
+│       │   │   │   └── ReportRepository.go
+│       │   │   ├── Adapters/
+│       │   │   │   ├── DataWarehouseAdapter.go
+│       │   │   │   └── TimescaleDBAdapter.go
+│       │   │   └── Models/
+│       │   │       ├── MetricModel.go
+│       │   │       └── ReportModel.go
+│       │   ├── Interface/
+│       │   │   ├── API/
+│       │   │   │   ├── AnalyticsController.go
+│       │   │   │   └── DashboardController.go
+│       │   │   └── Console/
+│       │   │       ├── AggregateDailyMetrics.go
+│       │   │       └── GenerateMonthlyReport.go
+│       │   └── Tests/
+│       │       ├── Unit/
+│       │       ├── Integration/
+│       │       └── Feature/
+│       ├── config/
+│       │   ├── config.yaml
+│       │   └── analytics.yaml
+│       ├── go.mod
+│       ├── go.sum
+│       ├── Makefile
+│       └── Dockerfile
+│
+├── shared-kernel/                   # 🔧 Shared Components
+│   ├── Domain/
+│   │   ├── Events/
+│   │   │   ├── DomainEvent.go
+│   │   │   ├── EventDispatcher.go
+│   │   │   └── EventSubscriber.go
+│   │   ├── Bus/
+│   │   │   ├── CommandBus.go
+│   │   │   ├── QueryBus.go
+│   │   │   └── EventBus.go
+│   │   ├── CQRS/
+│   │   │   ├── Command.go
+│   │   │   ├── Query.go
+│   │   │   ├── Handler.go
+│   │   │   └── Middleware/
+│   │   │       ├── ValidationMiddleware.go
+│   │   │       ├── LoggingMiddleware.go
+│   │   │       └── TransactionMiddleware.go
+│   │   ├── Saga/
+│   │   │   ├── Saga.go
+│   │   │   ├── SagaStep.go
+│   │   │   ├── SagaOrchestrator.go
+│   │   │   └── SagaRepository.go
+│   │   ├── Messaging/
+│   │   │   ├── Message.go
+│   │   │   ├── MessageBus.go
+│   │   │   └── MessageHandler.go
+│   │   └── ValueObjects/
+│   │       ├── Money.go
+│   │       ├── Email.go
+│   │       ├── PhoneNumber.go
+│   │       └── Address.go
+│   ├── Infrastructure/
+│   │   ├── Persistence/
+│   │   │   ├── Database/
+│   │   │   │   ├── Connection/
+│   │   │   │   │   ├── PostgreSQLConnection.go
+│   │   │   │   │   └── MySQLConnection.go
+│   │   │   │   ├── QueryBuilder/
+│   │   │   │   │   └── QueryBuilder.go
+│   │   │   │   ├── Migrations/
+│   │   │   │   │   └── MigrationRunner.go
+│   │   │   │   └── Seeders/
+│   │   │   │       └── Seeder.go
+│   │   │   ├── Redis/
+│   │   │   │   ├── Cache/
+│   │   │   │   │   └── RedisCache.go
+│   │   │   │   ├── Queue/
+│   │   │   │   │   └── RedisQueue.go
+│   │   │   │   └── Session/
+│   │   │   │       └── RedisSession.go
+│   │   │   └── Elasticsearch/
+│   │   │       ├── Indices/
+│   │   │       │   └── IndexManager.go
+│   │   │       ├── Search/
+│   │   │       │   └── SearchBuilder.go
+│   │   │       └── Sync/
+│   │   │           └── SyncManager.go
+│   │   ├── Communication/
+│   │   │   ├── HTTP/
+│   │   │   │   ├── Client/
+│   │   │   │   │   └── HTTPClient.go
+│   │   │   │   ├── CircuitBreaker/
+│   │   │   │   │   └── CircuitBreaker.go
+│   │   │   │   └── RateLimiter/
+│   │   │   │       └── RateLimiter.go
+│   │   │   ├── Messaging/
+│   │   │   │   ├── RabbitMQ/
+│   │   │   │   │   ├── Producer.go
+│   │   │   │   │   └── Consumer.go
+│   │   │   │   └── Kafka/
+│   │   │   │       ├── Producer.go
+│   │   │   │       └── Consumer.go
+│   │   │   └── Events/
+│   │   │       └── EventStore/
+│   │   │           └── EventStore.go
+│   │   ├── Security/
+│   │   │   ├── Auth/
+│   │   │   │   ├── JWT/
+│   │   │   │   │   └── JWT.go
+│   │   │   │   ├── OAuth2/
+│   │   │   │   │   └── OAuth2.go
+│   │   │   │   └── SSO/
+│   │   │   │       └── SSO.go
+│   │   │   ├── Encryption/
+│   │   │   │   ├── Symmetric/
+│   │   │   │   │   └── AES.go
+│   │   │   │   └── Asymmetric/
+│   │   │   │       └── RSA.go
+│   │   │   └── Secrets/
+│   │   │       ├── Vault/
+│   │   │       │   └── VaultClient.go
+│   │   │       └── KeyManagement/
+│   │   │           └── KMS.go
+│   │   └── Observability/
+│   │       ├── Logging/
+│   │       │   ├── Channels/
+│   │       │   │   ├── FileChannel.go
+│   │       │   │   └── ElasticChannel.go
+│   │       │   ├── Processors/
+│   │       │   │   └── LogProcessor.go
+│   │       │   └── Formatters/
+│   │       │       └── JSONFormatter.go
+│   │       ├── Metrics/
+│   │       │   ├── Collectors/
+│   │       │   │   └── MetricCollector.go
+│   │       │   ├── Exporters/
+│   │       │   │   └── PrometheusExporter.go
+│   │       │   └── Dashboards/
+│   │       │       └── DashboardGenerator.go
+│   │       └── Tracing/
+│   │           ├── TraceContext/
+│   │           │   └── Context.go
+│   │           ├── Span/
+│   │           │   └── Span.go
+│   │           └── Exporters/
+│   │               ├── JaegerExporter.go
+│   │               └── ZipkinExporter.go
+│   └── Config/
+│       ├── config.go
+│       ├── app.yaml
+│       ├── database.yaml
+│       ├── cache.yaml
+│       ├── queue.yaml
+│       ├── security.yaml
+│       └── services.yaml
+│
+├── api-gateway/                     # 🚪 API Gateway
+│   ├── src/
+│   │   ├── Routes/
+│   │   │   ├── v1/
+│   │   │   │   ├── product.go
+│   │   │   │   ├── order.go
+│   │   │   │   ├── payment.go
+│   │   │   │   ├── user.go
+│   │   │   │   └── vendor.go
+│   │   │   └── v2/
+│   │   │       ├── product.go
+│   │   │       └── order.go
+│   │   ├── Middleware/
+│   │   │   ├── Auth/
+│   │   │   │   ├── JWTAuth.go
+│   │   │   │   ├── OAuth2.go
+│   │   │   │   └── APIKeyAuth.go
+│   │   │   ├── Security/
+│   │   │   │   ├── RateLimiter.go
+│   │   │   │   ├── Throttle.go
+│   │   │   │   ├── CORS.go
+│   │   │   │   └── IPWhitelist.go
+│   │   │   ├── Observability/
+│   │   │   │   ├── RequestLogger.go
+│   │   │   │   ├── MetricsCollector.go
+│   │   │   │   └── TraceContext.go
+│   │   │   └── Resilience/
+│   │   │       ├── CircuitBreaker.go
+│   │   │       ├── Retry.go
+│   │   │       ├── Timeout.go
+│   │   │       └── Bulkhead.go
+│   │   ├── Transformers/
+│   │   │   ├── ProductTransformer.go
+│   │   │   ├── OrderTransformer.go
+│   │   │   └── UserTransformer.go
+│   │   ├── Validators/
+│   │   │   ├── RequestValidator.go
+│   │   │   └── ResponseValidator.go
+│   │   └── Services/
+│   │       ├── ServiceDiscovery.go
+│   │       ├── LoadBalancer.go
+│   │       └── CircuitBreakerRegistry.go
+│   ├── config/
+│   │   ├── config.yaml
+│   │   ├── routes.yaml
+│   │   ├── services.yaml
+│   │   └── security.yaml
+│   ├── go.mod
+│   ├── go.sum
+│   ├── Makefile
+│   ├── Dockerfile
+│   └── tests/
+│       ├── unit/
+│       └── integration/
+│
+├── marketplace-services/            # 🏪 Marketplace Extensions
+│   │
+│   ├── vendor-service/              # Vendor Management
+│   │   ├── src/
+│   │   │   ├── Domain/
+│   │   │   │   ├── Entities/
+│   │   │   │   │   ├── Vendor.go
+│   │   │   │   │   ├── VendorProfile.go
+│   │   │   │   │   └── VendorPayout.go
+│   │   │   │   ├── ValueObjects/
+│   │   │   │   │   ├── CommissionRate.go
+│   │   │   │   │   ├── PayoutStatus.go
+│   │   │   │   │   └── VendorRating.go
+│   │   │   │   ├── Repositories/
+│   │   │   │   │   ├── VendorRepositoryInterface.go
+│   │   │   │   │   └── VendorPayoutRepositoryInterface.go
+│   │   │   │   └── Events/
+│   │   │   │       ├── VendorRegistered.go
+│   │   │   │       ├── VendorVerified.go
+│   │   │   │       ├── VendorSuspended.go
+│   │   │   │       └── VendorPayoutProcessed.go
+│   │   │   ├── Application/
+│   │   │   │   ├── Commands/
+│   │   │   │   │   ├── RegisterVendorCommand.go
+│   │   │   │   │   ├── VerifyVendorCommand.go
+│   │   │   │   │   └── ProcessPayoutCommand.go
+│   │   │   │   ├── Queries/
+│   │   │   │   │   ├── GetVendorQuery.go
+│   │   │   │   │   └── GetVendorAnalyticsQuery.go
+│   │   │   │   ├── Handlers/
+│   │   │   │   │   ├── RegisterVendorHandler.go
+│   │   │   │   │   └── ProcessPayoutHandler.go
+│   │   │   │   └── Services/
+│   │   │   │       ├── VendorService.go
+│   │   │   │       ├── CommissionService.go
+│   │   │   │       └── PayoutService.go
+│   │   │   ├── Infrastructure/
+│   │   │   │   ├── Repositories/
+│   │   │   │   │   ├── VendorRepository.go
+│   │   │   │   │   └── VendorPayoutRepository.go
+│   │   │   │   ├── Adapters/
+│   │   │   │   │   ├── PaymentAdapter.go
+│   │   │   │   │   └── NotificationAdapter.go
+│   │   │   │   └── Models/
+│   │   │   │       ├── VendorModel.go
+│   │   │   │       └── VendorPayoutModel.go
+│   │   │   ├── Interface/
+│   │   │   │   ├── Http/
+│   │   │   │   │   ├── Controllers/
+│   │   │   │   │   │   ├── VendorController.go
+│   │   │   │   │   │   └── VendorAnalyticsController.go
+│   │   │   │   │   ├── Middleware/
+│   │   │   │   │   │   └── VendorAuthMiddleware.go
+│   │   │   │   │   └── Requests/
+│   │   │   │   │       ├── RegisterVendorRequest.go
+│   │   │   │   │       └── VerifyVendorRequest.go
+│   │   │   │   ├── Console/
+│   │   │   │   │   ├── ProcessPayouts.go
+│   │   │   │   │   └── GenerateVendorReport.go
+│   │   │   │   └── Queue/
+│   │   │   │       └── Jobs/
+│   │   │   │           └── ProcessVendorPayout.go
+│   │   │   └── Tests/
+│   │   │       ├── Unit/
+│   │   │       ├── Integration/
+│   │   │       └── Feature/
+│   │   ├── config/
+│   │   │   ├── config.yaml
+│   │   │   └── vendor.yaml
+│   │   ├── migrations/
+│   │   │   ├── 001_create_vendors_table.sql
+│   │   │   └── 002_create_vendor_payouts_table.sql
+│   │   ├── go.mod
+│   │   ├── go.sum
+│   │   ├── Makefile
+│   │   └── Dockerfile
+│   │
+│   ├── affiliate-service/           # Affiliate Marketing
+│   │   ├── src/
+│   │   │   ├── Domain/
+│   │   │   │   ├── Entities/
+│   │   │   │   │   ├── Affiliate.go
+│   │   │   │   │   ├── Commission.go
+│   │   │   │   │   └── Referral.go
+│   │   │   │   ├── ValueObjects/
+│   │   │   │   │   ├── CommissionRate.go
+│   │   │   │   │   └── ReferralStatus.go
+│   │   │   │   ├── Repositories/
+│   │   │   │   │   ├── AffiliateRepositoryInterface.go
+│   │   │   │   │   └── ReferralRepositoryInterface.go
+│   │   │   │   └── Events/
+│   │   │   │       ├── AffiliateRegistered.go
+│   │   │   │       ├── ReferralCreated.go
+│   │   │   │       └── CommissionEarned.go
+│   │   │   ├── Application/
+│   │   │   │   ├── Commands/
+│   │   │   │   │   ├── RegisterAffiliateCommand.go
+│   │   │   │   │   └── ProcessCommissionCommand.go
+│   │   │   │   ├── Queries/
+│   │   │   │   │   ├── GetAffiliateQuery.go
+│   │   │   │   │   └── GetReferralStatsQuery.go
+│   │   │   │   ├── Handlers/
+│   │   │   │   │   ├── RegisterAffiliateHandler.go
+│   │   │   │   │   └── ProcessCommissionHandler.go
+│   │   │   │   └── Services/
+│   │   │   │       ├── AffiliateService.go
+│   │   │   │       ├── CommissionService.go
+│   │   │   │       └── ReferralService.go
+│   │   │   ├── Infrastructure/
+│   │   │   │   ├── Repositories/
+│   │   │   │   │   ├── AffiliateRepository.go
+│   │   │   │   │   └── ReferralRepository.go
+│   │   │   │   ├── Adapters/
+│   │   │   │   │   ├── PaymentAdapter.go
+│   │   │   │   │   └── NotificationAdapter.go
+│   │   │   │   └── Models/
+│   │   │   │       ├── AffiliateModel.go
+│   │   │   │       └── ReferralModel.go
+│   │   │   ├── Interface/
+│   │   │   │   ├── Http/
+│   │   │   │   │   └── Controllers/
+│   │   │   │   │       ├── AffiliateController.go
+│   │   │   │   │       └── ReferralController.go
+│   │   │   │   └── Console/
+│   │   │   │       ├── ProcessCommissions.go
+│   │   │   │       └── GenerateAffiliateReport.go
+│   │   │   └── Tests/
+│   │   │       ├── Unit/
+│   │   │       ├── Integration/
+│   │   │       └── Feature/
+│   │   ├── config/
+│   │   │   ├── config.yaml
+│   │   │   └── affiliate.yaml
+│   │   ├── migrations/
+│   │   │   ├── 001_create_affiliates_table.sql
+│   │   │   └── 002_create_referrals_table.sql
+│   │   ├── go.mod
+│   │   ├── go.sum
+│   │   ├── Makefile
+│   │   └── Dockerfile
+│   │
+│   └── loyalty-service/             # Loyalty & Rewards
+│       ├── src/
+│       │   ├── Domain/
+│       │   │   ├── Entities/
+│       │   │   │   ├── LoyaltyProgram.go
+│       │   │   │   ├── Reward.go
+│       │   │   │   └── Points.go
+│       │   │   ├── ValueObjects/
+│       │   │   │   ├── Points.go
+│       │   │   │   ├── RewardType.go
+│       │   │   │   └── ProgramStatus.go
+│       │   │   ├── Repositories/
+│       │   │   │   ├── LoyaltyProgramRepositoryInterface.go
+│       │   │   │   └── RewardRepositoryInterface.go
+│       │   │   └── Events/
+│       │   │       ├── PointsEarned.go
+│       │   │       ├── PointsRedeemed.go
+│       │   │       └── RewardClaimed.go
+│       │   ├── Application/
+│       │   │   ├── Commands/
+│       │   │   │   ├── EarnPointsCommand.go
+│       │   │   │   ├── RedeemPointsCommand.go
+│       │   │   │   └── CreateLoyaltyProgramCommand.go
+│       │   │   ├── Queries/
+│       │   │   │   ├── GetUserPointsQuery.go
+│       │   │   │   └── GetAvailableRewardsQuery.go
+│       │   │   ├── Handlers/
+│       │   │   │   ├── EarnPointsHandler.go
+│       │   │   │   └── RedeemPointsHandler.go
+│       │   │   └── Services/
+│       │   │       ├── LoyaltyService.go
+│       │   │       ├── PointsService.go
+│       │   │       └── RewardService.go
+│       │   ├── Infrastructure/
+│       │   │   ├── Repositories/
+│       │   │   │   ├── LoyaltyProgramRepository.go
+│       │   │   │   └── RewardRepository.go
+│       │   │   ├── Adapters/
+│       │   │   │   ├── NotificationAdapter.go
+│       │   │   │   └── CacheAdapter.go
+│       │   │   └── Models/
+│       │   │       ├── LoyaltyProgramModel.go
+│       │   │       └── RewardModel.go
+│       │   ├── Interface/
+│       │   │   ├── Http/
+│       │   │   │   └── Controllers/
+│       │   │   │       ├── LoyaltyController.go
+│       │   │   │       └── RewardController.go
+│       │   │   └── Console/
+│       │   │       ├── ExpirePoints.go
+│       │   │       └── GenerateRewardReport.go
+│       │   └── Tests/
+│       │       ├── Unit/
+│       │       ├── Integration/
+│       │       └── Feature/
+│       ├── config/
+│       │   ├── config.yaml
+│       │   └── loyalty.yaml
+│       ├── migrations/
+│       │   ├── 001_create_loyalty_programs_table.sql
+│       │   └── 002_create_rewards_table.sql
+│       ├── go.mod
+│       ├── go.sum
+│       ├── Makefile
+│       └── Dockerfile
+│
+├── ai-ml-services/                  # 🤖 AI/ML Services
+│   │
+│   ├── recommendation-service/      # Recommendations
+│   │   ├── src/
+│   │   │   ├── Domain/
+│   │   │   │   ├── Models/
+│   │   │   │   │   ├── RecommendationEngine.py
+│   │   │   │   │   ├── RecommendationResult.py
+│   │   │   │   │   └── UserPreference.py
+│   │   │   │   ├── Events/
+│   │   │   │   │   ├── RecommendationsGenerated.py
+│   │   │   │   │   └── UserPreferenceUpdated.py
+│   │   │   │   └── Repositories/
+│   │   │   │       └── RecommendationRepositoryInterface.py
+│   │   │   ├── Application/
+│   │   │   │   ├── Services/
+│   │   │   │   │   ├── RecommendationService.py
+│   │   │   │   │   ├── PersonalizationService.py
+│   │   │   │   │   └── RankingService.py
+│   │   │   │   ├── Engines/
+│   │   │   │   │   ├── CollaborativeFiltering.py
+│   │   │   │   │   ├── ContentBased.py
+│   │   │   │   │   ├── MatrixFactorization.py
+│   │   │   │   │   └── HybridEngine.py
+│   │   │   │   └── Strategies/
+│   │   │   │       ├── PopularityStrategy.py
+│   │   │   │       ├── PersonalizationStrategy.py
+│   │   │   │       ├── TrendingStrategy.py
+│   │   │   │       └── SeasonalityStrategy.py
+│   │   │   ├── Infrastructure/
+│   │   │   │   ├── Adapters/
+│   │   │   │   │   ├── ModelRegistry.py
+│   │   │   │   │   └── FeatureStore.py
+│   │   │   │   └── Services/
+│   │   │   │       ├── ModelTrainer.py
+│   │   │   │       ├── ModelDeployer.py
+│   │   │   │       └── ModelVersioning.py
+│   │   │   └── Interface/
+│   │   │       ├── API/
+│   │   │       │   ├── RecommendationController.py
+│   │   │       │   └── PersonalizationController.py
+│   │   │       └── Console/
+│   │   │           ├── TrainRecommendationModel.py
+│   │   │           └── DeployRecommendationModel.py
+│   │   ├── config/
+│   │   │   ├── config.yaml
+│   │   │   └── recommendation.yaml
+│   │   ├── requirements.txt
+│   │   ├── Dockerfile
+│   │   └── Makefile
+│   │
+│   ├── personalization-service/     # Personalization
+│   │   ├── src/
+│   │   │   ├── Domain/
+│   │   │   │   ├── Models/
+│   │   │   │   │   ├── UserProfile.py
+│   │   │   │   │   ├── Behavior.py
+│   │   │   │   │   └── Segment.py
+│   │   │   │   ├── Events/
+│   │   │   │   │   ├── UserSegmented.py
+│   │   │   │   │   └── BehaviorTracked.py
+│   │   │   │   └── Repositories/
+│   │   │   │       └── UserProfileRepositoryInterface.py
+│   │   │   ├── Application/
+│   │   │   │   ├── Services/
+│   │   │   │   │   ├── PersonalizationService.py
+│   │   │   │   │   ├── SegmentationService.py
+│   │   │   │   │   └── TargetingService.py
+│   │   │   │   └── Engines/
+│   │   │   │       ├── BehaviorEngine.py
+│   │   │   │       ├── SegmentEngine.py
+│   │   │   │       └── TargetingEngine.py
+│   │   │   ├── Infrastructure/
+│   │   │   │   ├── Adapters/
+│   │   │   │   │   ├── EventCollector.py
+│   │   │   │   │   └── SegmentSynchronizer.py
+│   │   │   │   └── Models/
+│   │   │   │       └── UserProfileModel.py
+│   │   │   └── Interface/
+│   │   │       ├── API/
+│   │   │       │   └── PersonalizationController.py
+│   │   │       └── Console/
+│   │   │           └── SegmentUsers.py
+│   │   ├── config/
+│   │   │   ├── config.yaml
+│   │   │   └── personalization.yaml
+│   │   ├── requirements.txt
+│   │   ├── Dockerfile
+│   │   └── Makefile
+│   │
+│   ├── fraud-detection-service/     # Fraud Detection
+│   │   ├── src/
+│   │   │   ├── Domain/
+│   │   │   │   ├── Models/
+│   │   │   │   │   ├── FraudScore.py
+│   │   │   │   │   ├── RiskRule.py
+│   │   │   │   │   └── FraudCase.py
+│   │   │   │   ├── Events/
+│   │   │   │   │   ├── FraudDetected.py
+│   │   │   │   │   ├── FraudCleared.py
+│   │   │   │   │   └── FraudEscalated.py
+│   │   │   │   └── Repositories/
+│   │   │   │       ├── FraudCaseRepositoryInterface.py
+│   │   │   │       └── RiskRuleRepositoryInterface.py
+│   │   │   ├── Application/
+│   │   │   │   ├── Services/
+│   │   │   │   │   ├── FraudDetectionService.py
+│   │   │   │   │   ├── RiskScoringService.py
+│   │   │   │   │   └── DecisionService.py
+│   │   │   │   ├── Engines/
+│   │   │   │   │   ├── RuleEngine.py
+│   │   │   │   │   ├── MachineLearningEngine.py
+│   │   │   │   │   └── HybridEngine.py
+│   │   │   │   └── Strategies/
+│   │   │   │       ├── TransactionFraudStrategy.py
+│   │   │   │       ├── UserFraudStrategy.py
+│   │   │   │       └── ChargebackFraudStrategy.py
+│   │   │   ├── Infrastructure/
+│   │   │   │   ├── Adapters/
+│   │   │   │   │   ├── ModelRegistry.py
+│   │   │   │   │   └── ExternalFraudAdapter.py
+│   │   │   │   └── Services/
+│   │   │   │       ├── ModelTrainer.py
+│   │   │   │       └── RuleEngine.py
+│   │   │   └── Interface/
+│   │   │       ├── API/
+│   │   │       │   ├── FraudDetectionController.py
+│   │   │       │   └── RiskAssessmentController.py
+│   │   │       └── Console/
+│   │   │           ├── TrainFraudModel.py
+│   │   │           └── UpdateRiskRules.py
+│   │   ├── config/
+│   │   │   ├── config.yaml
+│   │   │   └── fraud.yaml
+│   │   ├── requirements.txt
+│   │   ├── Dockerfile
+│   │   └── Makefile
+│   │
+│   └── search-service/              # 🔍 Search Service (AI-Enhanced)
+│       ├── src/
+│       │   ├── Domain/
+│       │   │   ├── Entities/
+│       │   │   │   ├── SearchIndex.py
+│       │   │   │   ├── SearchQuery.py
+│       │   │   │   └── SearchResult.py
+│       │   │   ├── ValueObjects/
+│       │   │   │   ├── SearchTerm.py
+│       │   │   │   ├── RelevanceScore.py
+│       │   │   │   └── Filter.py
+│       │   │   └── Repositories/
+│       │   │       └── SearchRepositoryInterface.py
+│       │   ├── Application/
+│       │   │   ├── Services/
+│       │   │   │   ├── SearchService.py
+│       │   │   │   ├── IndexingService.py
+│       │   │   │   └── SyncingService.py
+│       │   │   ├── Handlers/
+│       │   │   │   ├── ProductSearchHandler.py
+│       │   │   │   ├── CategorySearchHandler.py
+│       │   │   │   └── VendorSearchHandler.py
+│       │   │   └── Filters/
+│       │   │       ├── ProductFilters.py
+│       │   │       ├── AttributeFilters.py
+│       │   │       └── PriceFilters.py
+│       │   ├── Infrastructure/
+│       │   │   ├── Adapters/
+│       │   │   │   ├── Elasticsearch/
+│       │   │   │   │   ├── IndexManager.py
+│       │   │   │   │   ├── QueryBuilder.py
+│       │   │   │   │   └── AggregationBuilder.py
+│       │   │   │   └── Syncers/
+│       │   │   │       ├── ProductSyncer.py
+│       │   │   │       └── CategorySyncer.py
+│       │   │   └── Models/
+│       │   │       ├── SearchIndexModel.py
+│       │   │       └── SearchResultModel.py
+│       │   ├── Interface/
+│       │   │   ├── API/
+│       │   │   │   ├── SearchController.py
+│       │   │   │   └── AutocompleteController.py
+│       │   │   └── Console/
+│       │   │       ├── Reindex.py
+│       │   │       └── SyncIndex.py
+│       │   └── Tests/
+│       │       ├── Unit/
+│       │       ├── Integration/
+│       │       └── Feature/
+│       ├── config/
+│       │   ├── config.yaml
+│       │   ├── elasticsearch.yaml
+│       │   └── search.yaml
+│       ├── requirements.txt
+│       ├── Dockerfile
+│       └── Makefile
+│
+├── data-engineering/                # 📊 Data Engineering
+│   ├── data-pipeline/
+│   │   ├── ingestion/
+│   │   │   ├── sources/
+│   │   │   │   ├── Kafka/
+│   │   │   │   │   ├── Consumer.py
+│   │   │   │   │   └── Producer.py
+│   │   │   │   ├── Database/
+│   │   │   │   │   ├── PostgreSQLSource.py
+│   │   │   │   │   └── MySQLSource.py
+│   │   │   │   └── Filesystem/
+│   │   │   │       └── FileSource.py
+│   │   │   ├── processors/
+│   │   │   │   ├── cleaners/
+│   │   │   │   │   ├── DataCleaner.py
+│   │   │   │   │   └── Validator.py
+│   │   │   │   ├── transformers/
+│   │   │   │   │   ├── DataTransformer.py
+│   │   │   │   │   └── Enricher.py
+│   │   │   │   └── aggregators/
+│   │   │   │       ├── DailyAggregator.py
+│   │   │   │       └── MonthlyAggregator.py
+│   │   │   └── writers/
+│   │   │       ├── DataWarehouse/
+│   │   │       │   └── WarehouseWriter.py
+│   │   │       ├── DataLake/
+│   │   │       │   └── LakeWriter.py
+│   │   │       └── AnalyticsDB/
+│   │   │           └── AnalyticsWriter.py
+│   │   ├── streaming/
+│   │   │   ├── consumers/
+│   │   │   │   ├── ClickStreamConsumer.py
+│   │   │   │   ├── TransactionConsumer.py
+│   │   │   │   └── InventoryConsumer.py
+│   │   │   └── processors/
+│   │   │       ├── RealTimeAnalytics.py
+│   │   │       └── AnomalyDetection.py
+│   │   └── batch/
+│   │       ├── jobs/
+│   │       │   ├── DailyAggregation.py
+│   │       │   ├── MonthlyReporting.py
+│   │       │   └── DataWarehouseRefresh.py
+│   │       └── schedules/
+│   │           └── cron-schedules/
+│   │               └── schedule.py
+│   ├── data-warehouse/
+│   │   ├── schemas/
+│   │   │   ├── dimensions/
+│   │   │   │   ├── DateDimension.py
+│   │   │   │   ├── ProductDimension.py
+│   │   │   │   ├── UserDimension.py
+│   │   │   │   └── StoreDimension.py
+│   │   │   └── fact-tables/
+│   │   │       ├── SalesFact.py
+│   │   │       ├── InventoryFact.py
+│   │   │       └── UserActivityFact.py
+│   │   ├── ETL/
+│   │   │   ├── Extractors/
+│   │   │   │   ├── Extractor.py
+│   │   │   │   └── ExtractorFactory.py
+│   │   │   ├── Transformers/
+│   │   │   │   ├── Transformer.py
+│   │   │   │   └── TransformerFactory.py
+│   │   │   └── Loaders/
+│   │   │       ├── Loader.py
+│   │   │       └── LoaderFactory.py
+│   │   └── analytics/
+│   │       ├── reports/
+│   │       │   ├── SalesReport.py
+│   │       │   ├── ProductReport.py
+│   │       │   └── UserReport.py
+│   │       ├── dashboards/
+│   │       │   ├── AdminDashboard.py
+│   │       │   └── VendorDashboard.py
+│   │       └── queries/
+│   │           ├── SalesQueries.py
+│   │           └── UserQueries.py
+│   └── data-lake/
+│       ├── raw-data/
+│       │   ├── events/
+│       │   │   └── events.parquet
+│       │   ├── logs/
+│       │   │   └── logs.parquet
+│       │   └── backups/
+│       │       └── backup.parquet
+│       └── processed-data/
+│           ├── cleaned/
+│           │   └── cleaned.parquet
+│           ├── enriched/
+│           │   └── enriched.parquet
+│           └── aggregated/
+│               └── aggregated.parquet
+│
+├── common-services/                 # 🔧 Common Services
+│   │
+│   ├── notification-service/        # 📨 Notifications
+│   │   ├── src/
+│   │   │   ├── Channels/
+│   │   │   │   ├── EmailChannel.py
+│   │   │   │   ├── SMSChannel.py
+│   │   │   │   ├── PushChannel.py
+│   │   │   │   ├── WhatsAppChannel.py
+│   │   │   │   └── InAppChannel.py
+│   │   │   ├── Templates/
+│   │   │   │   ├── Email/
+│   │   │   │   │   ├── OrderConfirmation.py
+│   │   │   │   │   ├── ShippingUpdate.py
+│   │   │   │   │   └── WelcomeEmail.py
+│   │   │   │   ├── SMS/
+│   │   │   │   │   ├── OrderSMS.py
+│   │   │   │   │   └── OTP.py
+│   │   │   │   └── Push/
+│   │   │   │       ├── OrderPush.py
+│   │   │   │       └── PromotionalPush.py
+│   │   │   ├── Services/
+│   │   │   │   ├── NotificationService.py
+│   │   │   │   ├── TemplateService.py
+│   │   │   │   └── PreferenceService.py
+│   │   │   ├── Preferencer/
+│   │   │   │   ├── UserPreferenceManager.py
+│   │   │   │   └── ChannelPreferenceManager.py
+│   │   │   ├── Queue/
+│   │   │   │   ├── Jobs/
+│   │   │   │   │   ├── SendEmailJob.py
+│   │   │   │   │   ├── SendSMSJob.py
+│   │   │   │   │   └── SendPushNotificationJob.py
+│   │   │   │   └── Listeners/
+│   │   │   │       ├── OrderPlacedListener.py
+│   │   │   │       └── OrderStatusListener.py
+│   │   │   └── Interface/
+│   │   │       └── API/
+│   │   │           └── NotificationController.py
+│   │   ├── config/
+│   │   │   ├── config.yaml
+│   │   │   └── notification.yaml
+│   │   ├── requirements.txt
+│   │   ├── Dockerfile
+│   │   └── Makefile
+│   │
+│   ├── session-service/             # 👤 Session Management
+│   │   ├── src/
+│   │   │   ├── Domain/
+│   │   │   │   ├── Entities/
+│   │   │   │   │   └── Session.go
+│   │   │   │   ├── ValueObjects/
+│   │   │   │   │   ├── SessionID.go
+│   │   │   │   │   └── UserAgent.go
+│   │   │   │   └── Repositories/
+│   │   │   │       └── SessionRepositoryInterface.go
+│   │   │   ├── Application/
+│   │   │   │   ├── Services/
+│   │   │   │   │   ├── SessionService.go
+│   │   │   │   │   ├── SessionValidator.go
+│   │   │   │   │   └── SessionCleanupService.go
+│   │   │   │   └── DTOs/
+│   │   │   │       ├── SessionDTO.go
+│   │   │   │       └── SessionData.go
+│   │   │   ├── Infrastructure/
+│   │   │   │   ├── Repositories/
+│   │   │   │   │   ├── SessionRepository.go
+│   │   │   │   │   └── SessionCacheRepository.go
+│   │   │   │   ├── Adapters/
+│   │   │   │   │   ├── RedisSessionAdapter.go
+│   │   │   │   │   ├── DatabaseSessionAdapter.go
+│   │   │   │   │   └── MemcachedSessionAdapter.go
+│   │   │   │   └── Models/
+│   │   │   │       └── SessionModel.go
+│   │   │   └── Interface/
+│   │   │       └── Middleware/
+│   │   │           └── SessionMiddleware.go
+│   │   ├── config/
+│   │   │   ├── config.yaml
+│   │   │   └── session.yaml
+│   │   ├── go.mod
+│   │   ├── go.sum
+│   │   ├── Makefile
+│   │   └── Dockerfile
+│   │
+│   ├── i18n-service/                # 🌍 Internationalization
+│   │   ├── src/
+│   │   │   ├── Domain/
+│   │   │   │   ├── Entities/
+│   │   │   │   │   ├── Language.go
+│   │   │   │   │   ├── Currency.go
+│   │   │   │   │   ├── Country.go
+│   │   │   │   │   └── Region.go
+│   │   │   │   ├── ValueObjects/
+│   │   │   │   │   ├── Locale.go
+│   │   │   │   │   ├── CurrencyCode.go
+│   │   │   │   │   └── CountryCode.go
+│   │   │   │   └── Repositories/
+│   │   │   │       ├── LanguageRepositoryInterface.go
+│   │   │   │       └── CurrencyRepositoryInterface.go
+│   │   │   ├── Application/
+│   │   │   │   ├── Services/
+│   │   │   │   │   ├── LocalizationService.go
+│   │   │   │   │   ├── TranslationService.go
+│   │   │   │   │   ├── CurrencyService.go
+│   │   │   │   │   └── RegionService.go
+│   │   │   │   ├── Translators/
+│   │   │   │   │   ├── MachineTranslator.go
+│   │   │   │   │   ├── HumanTranslator.go
+│   │   │   │   │   └── HybridTranslator.go
+│   │   │   │   └── Services/
+│   │   │   │       ├── CurrencyConverter.go
+│   │   │   │       └── LocalizationManager.go
+│   │   │   ├── Infrastructure/
+│   │   │   │   ├── Repositories/
+│   │   │   │   │   ├── LanguageRepository.go
+│   │   │   │   │   ├── CurrencyRepository.go
+│   │   │   │   │   └── TranslationRepository.go
+│   │   │   │   ├── Adapters/
+│   │   │   │   │   ├── CurrencyExchangeAdapter.go
+│   │   │   │   │   └── TranslationAdapter.go
+│   │   │   │   └── Models/
+│   │   │   │       ├── LanguageModel.go
+│   │   │   │       ├── CurrencyModel.go
+│   │   │   │       └── CountryModel.go
+│   │   │   ├── Interface/
+│   │   │   │   ├── API/
+│   │   │   │   │   └── InternationalizationController.go
+│   │   │   │   ├── Middleware/
+│   │   │   │   │   ├── LocaleMiddleware.go
+│   │   │   │   │   └── CurrencyMiddleware.go
+│   │   │   │   └── Console/
+│   │   │   │       ├── SyncTranslations.go
+│   │   │   │       └── UpdateCurrencyRates.go
+│   │   │   └── Tests/
+│   │   │       ├── Unit/
+│   │   │       ├── Integration/
+│   │   │       └── Feature/
+│   │   ├── config/
+│   │   │   ├── config.yaml
+│   │   │   └── i18n.yaml
+│   │   ├── migrations/
+│   │   │   ├── 001_create_languages_table.sql
+│   │   │   └── 002_create_currencies_table.sql
+│   │   ├── go.mod
+│   │   ├── go.sum
+│   │   ├── Makefile
+│   │   └── Dockerfile
+│   │
+│   └── cache-service/               # 🚀 Cache Service
+│       ├── src/
+│       │   ├── Domain/
+│       │   │   ├── Entities/
+│       │   │   │   └── CacheItem.go
+│       │   │   ├── ValueObjects/
+│       │   │   │   ├── CacheKey.go
+│       │   │   │   ├── CacheTTL.go
+│       │   │   │   └── CacheTag.go
+│       │   │   └── Repositories/
+│       │   │       ├── CacheRepositoryInterface.go
+│       │   │       └── CacheTagRepositoryInterface.go
+│       │   ├── Application/
+│       │   │   ├── Services/
+│       │   │   │   ├── CacheService.go
+│       │   │   │   ├── CacheInvalidationService.go
+│       │   │   │   └── CacheWarmupService.go
+│       │   │   └── Strategies/
+│       │   │       ├── CacheAside.go
+│       │   │       ├── WriteThrough.go
+│       │   │       ├── WriteBehind.go
+│       │   │       └── CacheInvalidation.go
+│       │   ├── Infrastructure/
+│       │   │   ├── Adapters/
+│       │   │   │   ├── RedisAdapter.go
+│       │   │   │   ├── MemcachedAdapter.go
+│       │   │   │   ├── APCuAdapter.go
+│       │   │   │   └── MultiLevelAdapter.go
+│       │   │   └── Models/
+│       │   │       └── CacheItemModel.go
+│       │   └── Interface/
+│       │       ├── API/
+│       │       │   └── CacheController.go
+│       │       └── Middleware/
+│       │           ├── CacheMiddleware.go
+│       │           └── InvalidationMiddleware.go
+│       ├── config/
+│       │   ├── config.yaml
+│       │   └── cache.yaml
+│       ├── go.mod
+│       ├── go.sum
+│       ├── Makefile
+│       └── Dockerfile
+│
+├── security-services/               # 🔒 Security Services
+│   │
+│   ├── auth-service/                # Authentication
+│   │   ├── src/
+│   │   │   ├── Domain/
+│   │   │   │   ├── Entities/
+│   │   │   │   │   ├── User.go
+│   │   │   │   │   ├── Role.go
+│   │   │   │   │   ├── Permission.go
+│   │   │   │   │   └── Token.go
+│   │   │   │   ├── ValueObjects/
+│   │   │   │   │   ├── UserID.go
+│   │   │   │   │   ├── Email.go
+│   │   │   │   │   ├── Password.go
+│   │   │   │   │   └── TokenType.go
+│   │   │   │   ├── Repositories/
+│   │   │   │   │   ├── UserRepositoryInterface.go
+│   │   │   │   │   ├── TokenRepositoryInterface.go
+│   │   │   │   │   └── RoleRepositoryInterface.go
+│   │   │   │   └── Events/
+│   │   │   │       ├── UserRegistered.go
+│   │   │   │       ├── UserLoggedIn.go
+│   │   │   │       ├── UserLoggedOut.go
+│   │   │   │       ├── PasswordReset.go
+│   │   │   │       └── TwoFactorEnabled.go
+│   │   │   ├── Application/
+│   │   │   │   ├── Services/
+│   │   │   │   │   ├── AuthenticationService.go
+│   │   │   │   │   ├── AuthorizationService.go
+│   │   │   │   │   ├── TokenService.go
+│   │   │   │   │   ├── PasswordService.go
+│   │   │   │   │   ├── TwoFactorService.go
+│   │   │   │   │   └── SocialAuthService.go
+│   │   │   │   ├── Handlers/
+│   │   │   │   │   ├── LoginHandler.go
+│   │   │   │   │   ├── RegisterHandler.go
+│   │   │   │   │   └── LogoutHandler.go
+│   │   │   │   └── DTOs/
+│   │   │   │       ├── UserDTO.go
+│   │   │   │       └── TokenDTO.go
+│   │   │   ├── Infrastructure/
+│   │   │   │   ├── Repositories/
+│   │   │   │   │   ├── UserRepository.go
+│   │   │   │   │   └── TokenRepository.go
+│   │   │   │   ├── Adapters/
+│   │   │   │   │   ├── PasswordHasher.go
+│   │   │   │   │   ├── JWTGenerator.go
+│   │   │   │   │   ├── OAuth2Provider.go
+│   │   │   │   │   └── SSOProvider.go
+│   │   │   │   └── Models/
+│   │   │   │       ├── UserModel.go
+│   │   │   │       └── TokenModel.go
+│   │   │   ├── Interface/
+│   │   │   │   ├── HTTP/
+│   │   │   │   │   ├── Controllers/
+│   │   │   │   │   │   ├── AuthController.go
+│   │   │   │   │   │   ├── UserController.go
+│   │   │   │   │   │   ├── RoleController.go
+│   │   │   │   │   │   └── TwoFactorController.go
+│   │   │   │   │   ├── Middleware/
+│   │   │   │   │   │   ├── AuthMiddleware.go
+│   │   │   │   │   │   ├── RoleMiddleware.go
+│   │   │   │   │   │   └── PermissionMiddleware.go
+│   │   │   │   │   └── Requests/
+│   │   │   │   │       ├── LoginRequest.go
+│   │   │   │   │       ├── RegisterRequest.go
+│   │   │   │   │       └── ResetPasswordRequest.go
+│   │   │   │   ├── Console/
+│   │   │   │   │   ├── CreateUser.go
+│   │   │   │   │   └── ResetPassword.go
+│   │   │   │   └── Queue/
+│   │   │   │       ├── Jobs/
+│   │   │   │       │   └── SendWelcomeEmail.go
+│   │   │   │       └── Listeners/
+│   │   │   │           ├── UserRegisteredListener.go
+│   │   │   │           └── UserLoggedInListener.go
+│   │   │   └── Tests/
+│   │   │       ├── Unit/
+│   │   │       ├── Integration/
+│   │   │       └── Feature/
+│   │   ├── config/
+│   │   │   ├── config.yaml
+│   │   │   └── auth.yaml
+│   │   ├── migrations/
+│   │   │   ├── 001_create_users_table.sql
+│   │   │   ├── 002_create_roles_table.sql
+│   │   │   └── 003_create_permissions_table.sql
+│   │   ├── go.mod
+│   │   ├── go.sum
+│   │   ├── Makefile
+│   │   └── Dockerfile
+│   │
+│   └── audit-service/               # 📝 Audit & Compliance
+│       ├── src/
+│       │   ├── Domain/
+│       │   │   ├── Entities/
+│       │   │   │   ├── AuditLog.go
+│       │   │   │   ├── ComplianceReport.go
+│       │   │   │   └── SecurityEvent.go
+│       │   │   ├── ValueObjects/
+│       │   │   │   ├── LogLevel.go
+│       │   │   │   ├── ActionType.go
+│       │   │   │   └── IPAddress.go
+│       │   │   └── Repositories/
+│       │   │       ├── AuditLogRepositoryInterface.go
+│       │   │       └── ComplianceRepositoryInterface.go
+│       │   ├── Application/
+│       │   │   ├── Services/
+│       │   │   │   ├── AuditService.go
+│       │   │   │   ├── ComplianceService.go
+│       │   │   │   ├── GDPRService.go
+│       │   │   │   └── ReportService.go
+│       │   │   ├── Handlers/
+│       │   │   │   ├── LogHandler.go
+│       │   │   │   └── ComplianceHandler.go
+│       │   │   └── DTOs/
+│       │   │       ├── AuditLogDTO.go
+│       │   │       └── ComplianceReportDTO.go
+│       │   ├── Infrastructure/
+│       │   │   ├── Repositories/
+│       │   │   │   ├── AuditLogRepository.go
+│       │   │   │   └── ComplianceRepository.go
+│       │   │   ├── Adapters/
+│       │   │   │   ├── LoggingAdapter.go
+│       │   │   │   ├── ReportingAdapter.go
+│       │   │   │   └── EncryptionAdapter.go
+│       │   │   └── Models/
+│       │   │       ├── AuditLogModel.go
+│       │   │       └── ComplianceReportModel.go
+│       │   ├── Interface/
+│       │   │   ├── HTTP/
+│       │   │   │   ├── Controllers/
+│       │   │   │   │   ├── AuditController.go
+│       │   │   │   │   └── ComplianceController.go
+│       │   │   │   ├── Middleware/
+│       │   │   │   │   ├── AuditLoggingMiddleware.go
+│       │   │   │   │   └── GDPRConsentMiddleware.go
+│       │   │   │   └── Requests/
+│       │   │   │       ├── AuditQueryRequest.go
+│       │   │   │       └── ComplianceReportRequest.go
+│       │   │   └── Console/
+│       │   │       ├── GenerateComplianceReport.go
+│       │   │       ├── CleanAuditLogs.go
+│       │   │       └── GDPRComplianceCheck.go
+│       │   └── Tests/
+│       │       ├── Unit/
+│       │       ├── Integration/
+│       │       └── Feature/
+│       ├── config/
+│       │   ├── config.yaml
+│       │   └── audit.yaml
+│       ├── migrations/
+│       │   ├── 001_create_audit_logs_table.sql
+│       │   └── 002_create_compliance_reports_table.sql
+│       ├── go.mod
+│       ├── go.sum
+│       ├── Makefile
+│       └── Dockerfile
+│
+├── observability/                   # 📊 Observability
+│   ├── monitoring/
+│   │   ├── metrics/
+│   │   │   ├── prometheus/
+│   │   │   │   ├── collectors/
+│   │   │   │   │   └── metrics_collector.go
+│   │   │   │   ├── exporters/
+│   │   │   │   │   └── prometheus_exporter.go
+│   │   │   │   └── dashboards/
+│   │   │   │       └── dashboard.json
+│   │   │   └── grafana/
+│   │   │       ├── dashboards/
+│   │   │       │   ├── business-metrics.json
+│   │   │       │   ├── technical-metrics.json
+│   │   │       │   ├── performance-metrics.json
+│   │   │       │   └── security-metrics.json
+│   │   │       └── alerts/
+│   │   │           ├── business-alerts.json
+│   │   │           ├── technical-alerts.json
+│   │   │           └── security-alerts.json
+│   │   ├── logging/
+│   │   │   ├── centralized/
+│   │   │   │   ├── elasticsearch/
+│   │   │   │   │   └── index_mappings.json
+│   │   │   │   ├── logstash/
+│   │   │   │   │   └── pipeline.conf
+│   │   │   │   └── kibana/
+│   │   │   │       └── dashboards.json
+│   │   │   ├── collectors/
+│   │   │   │   ├── application-logs/
+│   │   │   │   │   └── app_logger.go
+│   │   │   │   ├── access-logs/
+│   │   │   │   │   └── access_logger.go
+│   │   │   │   └── error-logs/
+│   │   │   │       └── error_logger.go
+│   │   │   └── processors/
+│   │   │       ├── parsers/
+│   │   │       │   └── log_parser.go
+│   │   │       ├── enrichments/
+│   │   │       │   └── log_enricher.go
+│   │   │       └── aggregators/
+│   │   │           └── log_aggregator.go
+│   │   └── tracing/
+│   │       ├── distributed-tracing/
+│   │       │   ├── jaeger/
+│   │       │   │   └── jaeger_config.yaml
+│   │       │   ├── zipkin/
+│   │       │   │   └── zipkin_config.yaml
+│   │       │   └── datadog/
+│   │       │       └── datadog_config.yaml
+│   │       ├── samplers/
+│   │       │   ├── head-based/
+│   │       │   │   └── head_sampler.go
+│   │       │   └── tail-based/
+│   │       │       └── tail_sampler.go
+│   │       └── instrumentation/
+│   │           ├── auto-instrumentation/
+│   │           │   └── auto_instrument.go
+│   │           └── manual-instrumentation/
+│   │               └── manual_instrument.go
+│   ├── alerts/
+│   │   ├── rules/
+│   │   │   ├── business-rules/
+│   │   │   │   └── business_alerts.yaml
+│   │   │   ├── technical-rules/
+│   │   │   │   └── technical_alerts.yaml
+│   │   │   ├── security-rules/
+│   │   │   │   └── security_alerts.yaml
+│   │   │   └── performance-rules/
+│   │   │       └── performance_alerts.yaml
+│   │   ├── notifiers/
+│   │   │   ├── email/
+│   │   │   │   └── email_notifier.go
+│   │   │   ├── slack/
+│   │   │   │   └── slack_notifier.go
+│   │   │   ├── pagerduty/
+│   │   │   │   └── pagerduty_notifier.go
+│   │   │   └── sms/
+│   │   │       └── sms_notifier.go
+│   │   └── escalations/
+│   │       ├── levels/
+│   │       │   ├── level1.yaml
+│   │       │   ├── level2.yaml
+│   │       │   └── level3.yaml
+│   │       └── oncall/
+│   │           └── oncall_schedule.yaml
+│   └── dashboarding/
+│       ├── admin-dashboard/
+│       │   └── admin_dashboard.go
+│       ├── vendor-dashboard/
+│       │   └── vendor_dashboard.go
+│       ├── developer-dashboard/
+│       │   └── developer_dashboard.go
+│       └── operations-dashboard/
+│           └── operations_dashboard.go
+│
+├── devops/                          # 🔧 DevOps
+│   ├── ci-cd/
+│   │   ├── github-actions/
+│   │   │   ├── workflows/
+│   │   │   │   ├── build.yml
+│   │   │   │   ├── test.yml
+│   │   │   │   ├── deploy-staging.yml
+│   │   │   │   ├── deploy-production.yml
+│   │   │   │   ├── security-scan.yml
+│   │   │   │   └── performance-test.yml
+│   │   │   └── actions/
+│   │   │       ├── custom-build/
+│   │   │       │   └── action.yml
+│   │   │       └── custom-deploy/
+│   │   │           └── action.yml
+│   │   ├── gitlab-ci/
+│   │   │   └── .gitlab-ci.yml
+│   │   └── jenkins/
+│   │       └── Jenkinsfile
+│   ├── deployment/
+│   │   ├── blue-green/
+│   │   │   ├── switch-strategies/
+│   │   │   │   ├── gradual-switch.sh
+│   │   │   │   └── instant-switch.sh
+│   │   │   └── rollback-strategies/
+│   │   │       ├── automatic-rollback.sh
+│   │   │       └── manual-rollback.sh
+│   │   ├── canary-deployments/
+│   │   │   ├── percentage-based/
+│   │   │   │   └── canary-percentage.sh
+│   │   │   └── feature-based/
+│   │   │       └── canary-feature.sh
+│   │   └── rollout-strategies/
+│   │       ├── sequential/
+│   │       │   └── sequential-rollout.sh
+│   │       └── parallel/
+│   │           └── parallel-rollout.sh
+│   ├── infrastructure-as-code/
+│   │   ├── terraform/
+│   │   │   ├── environments/
+│   │   │   │   ├── dev/
+│   │   │   │   │   ├── main.tf
+│   │   │   │   │   ├── variables.tf
+│   │   │   │   │   └── terraform.tfvars
+│   │   │   │   ├── staging/
+│   │   │   │   │   ├── main.tf
+│   │   │   │   │   ├── variables.tf
+│   │   │   │   │   └── terraform.tfvars
+│   │   │   │   └── production/
+│   │   │   │       ├── main.tf
+│   │   │   │       ├── variables.tf
+│   │   │   │       └── terraform.tfvars
+│   │   │   ├── modules/
+│   │   │   │   ├── networking/
+│   │   │   │   │   ├── main.tf
+│   │   │   │   │   ├── variables.tf
+│   │   │   │   │   └── outputs.tf
+│   │   │   │   ├── compute/
+│   │   │   │   │   ├── main.tf
+│   │   │   │   │   ├── variables.tf
+│   │   │   │   │   └── outputs.tf
+│   │   │   │   └── database/
+│   │   │   │       ├── main.tf
+│   │   │   │       ├── variables.tf
+│   │   │   │       └── outputs.tf
+│   │   │   └── providers/
+│   │   │       ├── aws/
+│   │   │       │   └── provider.tf
+│   │   │       ├── gcp/
+│   │   │       │   └── provider.tf
+│   │   │       └── azure/
+│   │   │           └── provider.tf
+│   │   ├── pulumi/
+│   │   │   └── index.ts
+│   │   └── ansible/
+│   │       ├── playbooks/
+│   │       │   ├── setup.yml
+│   │       │   └── deploy.yml
+│   │       └── roles/
+│   │           ├── common/
+│   │           ├── docker/
+│   │           └── kubernetes/
+│   ├── disaster-recovery/
+│   │   ├── backup-strategies/
+│   │   │   ├── full-backup/
+│   │   │   │   └── full_backup.sh
+│   │   │   ├── incremental-backup/
+│   │   │   │   └── incremental_backup.sh
+│   │   │   └── point-in-time-recovery/
+│   │   │       └── pitr.sh
+│   │   ├── recovery-plans/
+│   │   │   ├── RTO-1h/
+│   │   │   │   └── recovery_1h.sh
+│   │   │   ├── RTO-4h/
+│   │   │   │   └── recovery_4h.sh
+│   │   │   └── RTO-24h/
+│   │   │       └── recovery_24h.sh
+│   │   └── drill-scripts/
+│   │       ├── weekly-drill.sh
+│   │       └── monthly-drill.sh
+│   └── security/
+│       ├── scanning/
+│       │   ├── vulnerability-scans/
+│       │   │   └── vulnerability_scan.sh
+│       │   ├── dependency-scans/
+│       │   │   └── dependency_scan.sh
+│       │   └── container-scans/
+│       │       └── container_scan.sh
+│       ├── secrets-management/
+│       │   ├── hashicorp-vault/
+│       │   │   └── vault_config.yaml
+│       │   ├── aws-secrets-manager/
+│       │   │   └── secrets_manager.yaml
+│       │   └── rotation-policies/
+│       │       └── rotation_policy.yaml
+│       └── compliance/
+│           ├── pci-dss/
+│           │   └── pci_compliance.yaml
+│           ├── gdpr/
+│           │   └── gdpr_compliance.yaml
+│           └── soc2/
+│               └── soc2_compliance.yaml
+│
+├── testing/                         # 🧪 Testing
+│   ├── unit/
+│   │   ├── services/
+│   │   │   └── service_test.go
+│   │   ├── models/
+│   │   │   └── model_test.go
+│   │   └── controllers/
+│   │       └── controller_test.go
+│   ├── integration/
+│   │   ├── database/
+│   │   │   └── database_test.go
+│   │   ├── api/
+│   │   │   └── api_test.go
+│   │   └── services/
+│   │       └── service_integration_test.go
+│   ├── e2e/
+│   │   ├── user-flows/
+│   │   │   └── user_flow_test.go
+│   │   ├── business-flows/
+│   │   │   └── business_flow_test.go
+│   │   └── api-flows/
+│   │       └── api_flow_test.go
+│   ├── performance/
+│   │   ├── load-tests/
+│   │   │   └── load_test.go
+│   │   ├── stress-tests/
+│   │   │   └── stress_test.go
+│   │   ├── scalability-tests/
+│   │   │   └── scalability_test.go
+│   │   └── endurance-tests/
+│   │       └── endurance_test.go
+│   ├── security/
+│   │   ├── penetration-tests/
+│   │   │   └── pentest.py
+│   │   ├── vulnerability-scans/
+│   │   │   └── vuln_scan.py
+│   │   └── security-audits/
+│   │       └── security_audit.py
+│   ├── chaos-engineering/
+│   │   ├── experiments/
+│   │   │   └── experiment.yaml
+│   │   ├── fault-injection/
+│   │   │   └── fault_inject.go
+│   │   └── resiliency-tests/
+│   │       └── resiliency_test.go
+│   └── test-automation/
+│       ├── test-frameworks/
+│       │   └── framework_config.yaml
+│       ├── test-data/
+│       │   └── test_data.json
+│       └── test-reports/
+│           └── report_generator.go
+│
+├── docs/                            # 📚 Documentation
+│   ├── architecture/
+│   │   ├── adrs/                   # Architectural Decision Records
+│   │   │   ├── 001-service-boundaries.md
+│   │   │   ├── 002-api-gateway.md
+│   │   │   ├── 003-database-sharding.md
+│   │   │   └── 004-event-sourcing.md
+│   │   ├── diagrams/
+│   │   │   ├── architecture.puml
+│   │   │   ├── sequence.puml
+│   │   │   └── deployment.puml
+│   │   ├── patterns/
+│   │   │   ├── saga-pattern.md
+│   │   │   ├── cqrs-pattern.md
+│   │   │   └── event-sourcing.md
+│   │   └── decisions/
+│   │       ├── language-choices.md
+│   │       └── framework-choices.md
+│   ├── api/
+│   │   ├── openapi/
+│   │   │   ├── product-api.yaml
+│   │   │   ├── order-api.yaml
+│   │   │   ├── payment-api.yaml
+│   │   │   ├── user-api.yaml
+│   │   │   └── vendor-api.yaml
+│   │   ├── guides/
+│   │   │   ├── getting-started.md
+│   │   │   └── authentication.md
+│   │   └── references/
+│   │       ├── endpoints.md
+│   │       └── error-codes.md
+│   ├── development/
+│   │   ├── setup/
+│   │   │   ├── local-setup.md
+│   │   │   ├── docker-setup.md
+│   │   │   └── kubernetes-setup.md
+│   │   ├── coding-standards/
+│   │   │   ├── go-standards.md
+│   │   │   ├── python-standards.md
+│   │   │   └── typescript-standards.md
+│   │   ├── testing-guide/
+│   │   │   ├── unit-testing.md
+│   │   │   ├── integration-testing.md
+│   │   │   └── e2e-testing.md
+│   │   └── deployment-guide/
+│   │       ├── staging-deployment.md
+│   │       └── production-deployment.md
+│   ├── operations/
+│   │   ├── runbooks/
+│   │   │   ├── incident-response.md
+│   │   │   ├── database-failover.md
+│   │   │   └── scaling-guide.md
+│   │   ├── monitoring-guide/
+│   │   │   ├── metrics-guide.md
+│   │   │   ├── logging-guide.md
+│   │   │   └── tracing-guide.md
+│   │   └── incident-response/
+│   │       ├── severity-levels.md
+│   │       ├── communication-plan.md
+│   │       └── post-mortem-template.md
+│   └── user/
+│       ├── admin-guide/
+│       │   ├── dashboard-guide.md
+│       │   └── user-management.md
+│       ├── vendor-guide/
+│       │   ├── onboarding-guide.md
+│       │   └── product-management.md
+│       └── user-guide/
+│           ├── shopping-guide.md
+│           └── order-tracking.md
+│
+└── applications/                    # 🎯 Application Layer
+    ├── web/                         # Web Application
+    │   ├── src/
+    │   │   ├── Controllers/
+    │   │   │   ├── HomeController.tsx
+    │   │   │   ├── ProductController.tsx
+    │   │   │   ├── CartController.tsx
+    │   │   │   └── CheckoutController.tsx
+    │   │   ├── Views/
+    │   │   │   ├── home.tsx
+    │   │   │   ├── product.tsx
+    │   │   │   ├── cart.tsx
+    │   │   │   └── checkout.tsx
+    │   │   ├── Assets/
+    │   │   │   ├── css/
+    │   │   │   │   ├── app.css
+    │   │   │   │   └── components.css
+    │   │   │   ├── js/
+    │   │   │   │   ├── app.ts
+    │   │   │   │   └── components.ts
+    │   │   │   └── images/
+    │   │   │       ├── logo.svg
+    │   │   │       └── icons/
+    │   │   ├── Middleware/
+    │   │   │   ├── AuthMiddleware.ts
+    │   │   │   └── CacheMiddleware.ts
+    │   │   └── Services/
+    │   │       ├── ProductService.ts
+    │   │       ├── OrderService.ts
+    │   │       └── UserService.ts
+    │   ├── config/
+    │   │   ├── app.config.ts
+    │   │   └── routes.config.ts
+    │   ├── package.json
+    │   ├── tsconfig.json
+    │   └── Dockerfile
+    ├── mobile-api/                   # Mobile API
+    │   ├── src/
+    │   │   ├── Controllers/
+    │   │   │   ├── ProductController.go
+    │   │   │   ├── OrderController.go
+    │   │   │   └── UserController.go
+    │   │   ├── Transformers/
+    │   │   │   ├── ProductTransformer.go
+    │   │   │   └── OrderTransformer.go
+    │   │   └── Services/
+    │   │       ├── ProductService.go
+    │   │       └── OrderService.go
+    │   ├── config/
+    │   │   ├── config.yaml
+    │   │   └── routes.yaml
+    │   ├── go.mod
+    │   ├── go.sum
+    │   ├── Makefile
+    │   └── Dockerfile
+    └── admin-panel/                 # Admin Panel
+        ├── src/
+        │   ├── Controllers/
+        │   │   ├── DashboardController.tsx
+        │   │   ├── ProductAdminController.tsx
+        │   │   ├── OrderAdminController.tsx
+        │   │   ├── UserAdminController.tsx
+        │   │   └── VendorAdminController.tsx
+        │   ├── Views/
+        │   │   ├── dashboard.tsx
+        │   │   ├── products.tsx
+        │   │   ├── orders.tsx
+        │   │   ├── users.tsx
+        │   │   └── vendors.tsx
+        │   ├── Services/
+        │   │   ├── AdminProductService.ts
+        │   │   ├── AdminOrderService.ts
+        │   │   └── AdminUserService.ts
+        │   └── Middleware/
+        │       └── AdminAuthMiddleware.ts
+        ├── config/
+        │   ├── app.config.ts
+        │   └── routes.config.ts
+        ├── package.json
+        ├── tsconfig.json
+        └── Dockerfile
+
+
+
+
+
+Priority Language Purpose Time to Learn
+🔴 #1 Go Backend Microservices 3-6 months
+🔴 #2 TypeScript Frontend + Admin Panel 3-4 months
+🔴 #3 SQL Database Queries 1-2 months
+🟡 #4 Python AI/ML + Data Engineering 3-6 months
+🟢 #5 YAML/JSON Config + DevOps 1 week
