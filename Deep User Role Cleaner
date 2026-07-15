@@ -1,0 +1,114 @@
+<?php
+/**
+ * Plugin Name: Deep Remove User Roles
+ * Description: Deeply removes specific user roles and cleans database entries. Deactivates itself after running.
+ * Version: 1.0
+ * Author: Your Name
+ */
+
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class DeepRemoveUserRoles {
+    
+    private $roles_to_remove;
+    
+    public function __construct() {
+        // List of custom roles you want to remove
+        $this->roles_to_remove = [
+            'eac_manager',
+            'eac_accountant',
+            'eac_auditor',
+            'vtupress_user',
+            'vtupress_sales',
+            'vtupress_admin',
+            'whols_default_role',
+            'yith_affiliate',
+            // Add more role slugs here
+        ];
+        
+        add_action('admin_init', [$this, 'check_and_run_removal']);
+        add_action('admin_notices', [$this, 'admin_notices']);
+    }
+    
+    public function check_and_run_removal() {
+        // Check if we've already run this
+        if (get_option('deep_remove_roles_executed')) {
+            return;
+        }
+        
+        // Optional: Add a security nonce check if you want to trigger this manually
+        // For now, it runs automatically on admin_init
+        
+        $this->remove_roles();
+        update_option('deep_remove_roles_executed', true);
+        
+        // Deactivate plugin instead of deleting it
+        deactivate_plugins(plugin_basename(__FILE__));
+    }
+    
+    private function remove_roles() {
+        global $wp_roles;
+        
+        if (!$wp_roles) {
+            $wp_roles = new WP_Roles();
+        }
+        
+        $removed = [];
+        $reassigned_users = 0;
+        
+        foreach ($this->roles_to_remove as $role) {
+            // Check if role exists
+            if (!isset($wp_roles->roles[$role])) {
+                continue;
+            }
+            
+            // Reassign users with this role to 'subscriber'
+            $users = get_users(['role' => $role]);
+            foreach ($users as $user) {
+                $user->set_role('subscriber');
+                $reassigned_users++;
+            }
+            
+            // Remove the role
+            remove_role($role);
+            
+            // Also remove from wp_user_roles option directly
+            $all_roles = get_option('wp_user_roles');
+            if (isset($all_roles[$role])) {
+                unset($all_roles[$role]);
+                update_option('wp_user_roles', $all_roles);
+            }
+            
+            $removed[] = $role;
+        }
+        
+        // Store results for display
+        update_option('deep_remove_roles_result', [
+            'removed_roles' => $removed,
+            'reassigned_users' => $reassigned_users,
+            'timestamp' => current_time('mysql')
+        ]);
+    }
+    
+    public function admin_notices() {
+        if (!$result = get_option('deep_remove_roles_result')) {
+            return;
+        }
+        
+        $message = sprintf(
+            __('Deep Remove User Roles has completed. Removed %d roles and reassigned %d users.'),
+            count($result['removed_roles']),
+            $result['reassigned_users']
+        );
+        
+        echo '<div class="notice notice-success is-dismissible"><p>' . $message . '</p></div>';
+        
+        // Clean up
+        delete_option('deep_remove_roles_result');
+    }
+}
+
+new DeepRemoveUserRoles();
