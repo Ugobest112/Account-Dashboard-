@@ -1,0 +1,14 @@
+<?php
+/**
+ * Plugin Name: Restore Admin Access
+ * Description: Temporarily restores administrator role to your user account.
+ */
+
+// CHANGE 'yourusername' below to your actual WordPress username
+add_action('init', function() {
+    $user = get_user_by('login', 'UGOCHUWU EXCEL NWEZE'); // <- Replace this
+    if ($user && !in_array('administrator', (array) $user->roles)) {
+        $user->add_role('administrator');
+    }
+});
+
